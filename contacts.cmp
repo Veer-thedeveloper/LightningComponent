@@ -1,0 +1,140 @@
+<aura:component controller="ContactController" implements="force:lightningQuickAction">
+    
+    <!-- for spinner 2 handler with events & one attribute-->
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    
+    <!--attribute to store Contact object's data-->
+    <aura:attribute name="ContactData" type="list"/>
+    
+    
+    <aura:handler name="init" value="{!this}" action="{!c.myAction}"/>
+    <!--if required to call on click of button
+    <ui:button label="get Contacts" class="slds-button slds-button-neutral" press="{!c.myAction}"/>-->
+    
+    
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" 
+                 role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if> 
+    
+    
+    <!--use of SLDS-->
+    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+        <thead>
+            <tr class="slds-line-height_reset">
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Opportunity Name">Contact Last Name</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Account Name">Contact First Name</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Close Date">Email</div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <aura:iteration items="{!v.ContactData}" var="ConDa">
+                <tr class="slds-hint-parent">
+                    <th data-label="Opportunity Name" scope="row">
+                        <div class="slds-truncate" title="Cloudhub">
+                            <a href="javascript:void(0);" tabindex="-1">{!ConDa.Id}</a>
+                        </div>
+                    </th>
+                    <td data-label="Account Name">
+                        <div class="slds-truncate" title="Cloudhub">{!ConDa.LastName}</div>
+                    </td>
+                    <td data-label="Close Date">
+                        <div class="slds-truncate" title="4/14/2015">{!ConDa.FirstName}</div>
+                    </td>
+                    <td data-label="Prospecting">
+                        <div class="slds-truncate" title="Prospecting">{!ConDa.Email}</div>
+                    </td>
+                    
+                </tr>
+            </aura:iteration> 
+           
+        </tbody>
+    </table>
+    
+    
+    
+</aura:component>
+
+
+==========================================================================================================================
+
+({
+    myAction : function(component, event, helper) {
+        helper.helperMethod(component, event, helper);
+        
+        
+    },
+
+    // this function automatic call by aura:waiting event  
+    showSpinner: function(component, event, helper) {
+        // make Spinner attribute true for display loading spinner 
+        component.set("v.Spinner", true); 
+    },
+    
+    // this function automatic call by aura:doneWaiting event 
+    hideSpinner : function(component,event,helper){
+        // make Spinner attribute to false for hide loading spinner    
+        component.set("v.Spinner", false);
+    }
+})
+
+===============================================================================================================
+
+({
+	helperMethod : function(component, event, helper) {
+        try{
+        var action = component.get("c.DisplayContact");
+        action.setCallback(this,function(response){
+            var responseState=response.getState();
+            if(responseState==='SUCCESS'){
+                var responseValue=response.getReturnValue();
+                component.set("v.ContactData",responseValue);
+                helper.showToast(component, event, helper);
+            }
+            
+        });
+        $A.enqueueAction(action);
+        }catch(e){ }	
+	},
+    showToast : function(component, event, helper) {
+        var toastEvent = $A.get("e.force:showToast");
+        toastEvent.setParams({
+            "title": "Success!",
+            "message": "The record has been updated successfully."
+        });
+        toastEvent.fire();
+    }
+})
+
+=======================================================================================================
+
+.THIS.slds-spinner_container {  
+  z-index: 10000;
+  position: fixed;   
+}
+
+===========Apex Controller============================================================================
+public with sharing class ContactController {
+    
+    @AuraEnabled
+    public static list<Contact> DisplayContact(){
+        list<Contact> lstCon= new list<Contact>();
+        lstCon=[SELECT Id, IsDeleted, MasterRecordId, AccountId, LastName, FirstName, Salutation, Name FROM Contact Limit 49999]; 
+            return lstCon;
+    }
+    
+}
