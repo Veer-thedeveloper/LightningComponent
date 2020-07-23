@@ -1,4 +1,4 @@
-<!--Code to use lightning spinner and Toast-->
+<!--Code to use lightning spinner, Toast and size of attribute-->
 
 <aura:component controller="ContactController" implements="force:lightningQuickAction">
     
@@ -9,12 +9,12 @@
     
     <!--attribute to store Contact object's data-->
     <aura:attribute name="ContactData" type="list"/>
-    
+    <!--attribute to store size of above attribute-->
+    <aura:attribute name="SizeOfAttribute" type="Integer"/>
     
     <aura:handler name="init" value="{!this}" action="{!c.myAction}"/>
     <!--if required to call on click of button
     <ui:button label="get Contacts" class="slds-button slds-button-neutral" press="{!c.myAction}"/>-->
-    
     
     <aura:if isTrue="{!v.Spinner}">
         <div aura:id="spinnerId" class="slds-spinner_container">
@@ -27,7 +27,7 @@
         </div>
     </aura:if> 
     
-    
+    Numbers of Contact: {!v.SizeOfAttribute}
     <!--use of SLDS-->
     <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
         <thead>
@@ -71,8 +71,8 @@
     
 </aura:component>
 
+====================================================================================================================
 
-==========================================================================================================================
 
 ({
     myAction : function(component, event, helper) {
@@ -94,7 +94,7 @@
     }
 })
 
-===============================================================================================================
+========================================================================================================================
 
 ({
 	helperMethod : function(component, event, helper) {
@@ -105,6 +105,11 @@
             if(responseState==='SUCCESS'){
                 var responseValue=response.getReturnValue();
                 component.set("v.ContactData",responseValue);
+                //get the size of component
+                var sizeofAtt=component.get("v.ContactData");
+                component.set("v.SizeOfAttribute",sizeofAtt.length); //putting the size of attribute
+                console.log('@@@@ size:',sizeofAtt);
+                console.log('@@@@ size:',component.get("v.SizeOfAttribute"));
                 helper.showToast(component, event, helper);
             }
             
@@ -122,14 +127,15 @@
     }
 })
 
-=======================================================================================================
+
+=============================================================================================================
 
 .THIS.slds-spinner_container {  
   z-index: 10000;
   position: fixed;   
 }
 
-===========Apex Controller============================================================================
+========================================Apex Controller======================================================
 public with sharing class ContactController {
     
     @AuraEnabled
@@ -140,3 +146,4 @@ public with sharing class ContactController {
     }
     
 }
+
