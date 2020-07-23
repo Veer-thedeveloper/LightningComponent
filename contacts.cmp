@@ -1,3 +1,5 @@
+<!--Code to use lightning spinner and Toast-->
+
 <aura:component controller="ContactController" implements="force:lightningQuickAction">
     
     <!-- for spinner 2 handler with events & one attribute-->
