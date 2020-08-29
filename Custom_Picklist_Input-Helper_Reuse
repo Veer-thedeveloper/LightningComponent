@@ -1,0 +1,155 @@
+<aura:component implements="force:appHostable" controller="ContactController">
+    
+    <aura:attribute name="LoadContacts" type="list"/>
+    
+    <!-- lightning:select for custom picklist-->
+    <lightning:select name="Lead_Source" label="Lead Source Value" required="false"
+                      onchange="{!c.handleSelect}">
+        <option value="">Choose one...</option>
+        <option value="Social Media">Social-Media</option>
+        <option value="Partner Referral">Partner-Referral</option>
+        <option value="3">All</option>
+    </lightning:select>
+    
+    <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+        <thead>
+            <tr class="slds-line-height_reset">
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Opportunity Name">Contact Id</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Account Name">Contact Name</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Close Date">Email</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Stage">MailingStreet</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Stage">Lead Source</div>
+                </th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            <aura:iteration items="{!v.LoadContacts}" var="lc">
+                <tr class="slds-hint-parent">
+                    <th data-label="Opportunity Name" scope="row">
+                        <div class="slds-truncate" title="Cloudhub">
+                            <a href="javascript:void(0);" tabindex="-1">{!lc.Id}</a>
+                        </div>
+                    </th>
+                    <td data-label="Account Name">
+                        <div class="slds-truncate" title="Cloudhub">{!lc.Name}</div>
+                    </td>
+                    <td data-label="Contact">
+                        <div class="slds-truncate" title="jrogers@cloudhub.com">
+                            <a href="javascript:void(0);" tabindex="-1">{!lc.Email}</a>
+                        </div>
+                    </td>
+                    <td data-label="Prospecting">
+                        <div class="slds-truncate" title="Prospecting">{!lc.MailingStreet}</div>
+                    </td>
+                    <td data-label="Prospecting">
+                        <div class="slds-truncate" title="Prospecting">{!lc.LeadSource}</div>
+                    </td>
+                    
+                    
+                </tr>
+                
+            </aura:iteration>
+        </tbody>
+    </table>
+    
+    
+    
+    <aura:handler name="init" value="{!this}" action="{!c.LoadGenericData}"/>
+    
+</aura:component>
+
+=============================$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$===============================================================
+
+({
+	myAction : function(component, event, helper) {
+		
+	},
+    LoadGenericData:function(component, event, helper){
+        helper.HelpLoadData(component, event, helper);
+    },
+    handleSelect:function(component, event, helper){
+        helper.HelpLoadSelectedData(component, event, helper);
+    },
+    
+})
+
+============================$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$=================================================================
+
+({
+	helperMethod : function() {
+		
+	},
+    HelpLoadData:function(component,event, helper){
+        console.log('inside helperLoad');
+        var action=component.get("c.DisplayContact");
+        console.log('action:',action);
+        action.setCallback(this,function(response){
+           var responseState=response.getState();
+            if(responseState==='SUCCESS'){
+                var responseValue=response.getReturnValue();
+                console.log('ResponseValue: ',responseValue);
+                component.set("v.LoadContacts",responseValue);
+            }
+            
+        }),
+        
+     $A.enqueueAction(action);   
+    },
+    HelpLoadSelectedData:function(component,event, helper){
+      var action=event.getSource().get("v.value");  //get picklist value
+        console.log('@@@ action:',action);
+        if(action=='Social Media'||action=='Partner Referral'){
+      var calling=component.get("c.DisplayContactOnCriteria");
+        
+        
+        calling.setParams({
+            "ParaLeadSource": action,
+            
+        });
+        calling.setCallback(this,function(response){
+            var responseState=response.getState();
+            if(responseState==='SUCCESS'){
+                var responseValue=response.getReturnValue();
+                component.set("v.LoadContacts",responseValue);
+            }
+        });
+        $A.enqueueAction(calling);
+        }
+        else{
+            this.HelpLoadData(component,event, helper);
+        }
+    },
+    
+})
+
+==============================$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$================================================================
+
+public with sharing class ContactController {
+    
+    @AuraEnabled
+    public static list<Contact> DisplayContact(){
+        list<Contact> lstCon= new list<Contact>();
+        lstCon=[SELECT Id, Name, Email, MailingStreet,LeadSource FROM Contact]; 
+            return lstCon;
+    }
+    
+    @AuraEnabled
+    public static list<Contact> DisplayContactOnCriteria(string ParaLeadSource){
+        system.debug('@@@@ Parameter: '+ParaLeadSource);
+       
+        list<Contact> lstCon= new list<Contact>();
+        lstCon=[SELECT Id, IsDeleted, MasterRecordId, AccountId, LastName, FirstName, Salutation, Name,LeadSource FROM Contact where LeadSource=:ParaLeadSource Limit 49999]; 
+        system.debug('@@@@ lstCon: '+lstCon);   
+        return lstCon;
+    }
+}
