@@ -2,6 +2,9 @@
     
     
     <aura:attribute name="ValueStore" type="Contact[]"/>
+    <!--or use:
+    <aura:attribute name="ValueStore" type="list"/>
+    -->
    
     <!-- lightning:select for custom picklist-->
     <lightning:select name="Lead_Source" label="Lead Source Value" required="false"
