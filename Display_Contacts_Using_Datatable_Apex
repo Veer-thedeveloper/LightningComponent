@@ -1,0 +1,41 @@
+public with sharing class ContactController {
+    @AuraEnabled(cacheable=true)
+    public static list<Contact> getContacts() {
+        
+        return [
+            SELECT Id, Name,FirstName,LastName, Title, Phone, Email
+            FROM Contact
+        ];
+    }
+}
+
+========================================================================
+
+<template>
+    <div style="height: 300px;">
+        <lightning-datatable
+                key-field="id"
+                data={contacts.data}
+                columns={columns}>
+        </lightning-datatable>
+    </div>
+</template>
+
+=======================================================================
+
+import { LightningElement,wire } from 'lwc';
+import getContacts from'@salesforce/apex/ContactController.getContacts';
+const columns = [
+    { label: 'First Name', fieldName: 'FirstName' },
+    { label: 'Last Name', fieldName: 'LastName'},
+    { label: 'Email', fieldName: 'Email', type: 'email' },
+    
+];
+export default class ContactList extends LightningElement {
+
+columns = columns;
+@wire(getContacts) contacts;
+
+}
+
+
