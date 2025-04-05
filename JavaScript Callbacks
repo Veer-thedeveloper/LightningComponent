@@ -1,0 +1,68 @@
+E.g. 01:    with single callback parameter
+ Normal way:                                                                                     callback:     
+ 
+ function learn() {                                                           function learn(callback1, callback2) {
+ 	const name = "LWC";                                                          const name = "LWC";	                                      
+ 	courseName(name);                                                            callback1(name);         // calling the callback function
+ 	                                                                          
+ }                                                                            }
+ 
+ function courseName(name) {                                                  function courseName(name) {
+ 	console.log(`I am learning, ${name}!`);                                     console.log(`I am learning, ${name}!`);
+ }                                                                            }
+ 
+ 
+ learn();          //calling parent function                                  learn(courseName);
+ 											
+ 											
+ 												                                Output:
+     										                          I am learning, LWC!
+ 
+ 
+ 
+ E.g. 02: with mulitple callback parameter
+ 
+ Normal way:                                                                                     callback:     
+ 
+ function learn() {                                                           function learn(callback1, callback2) {
+ 	const name = "LWC";                                                          const name = "LWC";
+ 	const trainer = 'Prashant Veer Singh';                                       const trainer ='Prashant Veer Singh';
+ 	courseName(name);                                                            callback1(name);         // calling the callback function
+ 	coach(trainer);                                                              callback2(trainer);      // calling the callback function
+ }                                                                            }
+ 
+ function courseName(name) {                                                  function courseName(name) {
+ 	console.log(`I am learning, ${name}!`);                                     console.log(`I am learning, ${name}!`);
+ }                                                                            }
+ 
+ function coach(trainer) {                                                    function coach(trainer){
+ 
+ 	console.log(`I am learning from, ${trainer}!`);                              console.log(`I am learning from, ${trainer}!`);
+ 
+ }                                                                            }
+ 
+ learn();          //calling parent function                                  learn(courseName,coach);
+ 											
+ 											
+ 												                            Output:
+ 										                          I am learning, LWC!
+ 										                          I am learning from, Prashant Veer Singh!
+ 
+ E.g. 03: Asynchronous Call
+ function fetchData(callback) {
+   setTimeout(() => {
+     const data = { id: 1, name: "Veer - the developer" };
+     callback(data); // callback with fetched data
+   }, 2000); // simulate 1 second delay
+ }
+ 
+ function displayData(data) {
+   console.log("Data received:", data);
+ }
+ 
+ fetchData(displayData);
+ 
+ Output: Data received: { id: 1, name: 'Veer - the developer' }
+ 
+ 
+ link for online js compiler: https://nextleap.app/online-compiler/javascript-programming
